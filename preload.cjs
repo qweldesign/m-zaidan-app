@@ -1,6 +1,5 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
-// 後でAPIアクセス用の関数をここに追加していく
 contextBridge.exposeInMainWorld('electronAPI', {
-  version: () => process.versions.electron,
+  fetchAPI: (path, options) => ipcRenderer.invoke('fetch-api', path, options),
 })
