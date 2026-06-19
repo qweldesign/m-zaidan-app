@@ -1,0 +1,13 @@
+# VS code
+.vscode/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Node_modules
+node_modules/
+
+# Viteビルド出力
+dist/
