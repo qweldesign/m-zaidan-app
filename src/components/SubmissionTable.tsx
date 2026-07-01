@@ -1,10 +1,14 @@
-// src/components/SubmissionTable.tsx
-
 import { Submission } from '../types/submission'
+
+type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
+type SortOrder = 'ASC' | 'DESC'
 
 type Props = {
   submissions: Submission[]
   onSelect: (submission: Submission) => void
+  sortKey: SortKey
+  sortOrder: SortOrder
+  onSort: (key: SortKey) => void
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -15,17 +19,35 @@ const STATUS_COLOR: Record<string, string> = {
   '保留':   'bg-yellow-100 text-yellow-700',
 }
 
-export default function SubmissionTable({ submissions, onSelect }: Props) {
+const COLUMNS: { key: SortKey; label: string }[] = [
+  { key: 'id',                  label: 'ID' },
+  { key: 'team_name',           label: '団体名' },
+  { key: 'project_name',        label: '事業名' },
+  { key: 'status',              label: 'ステータス' },
+  { key: 'created_at',          label: '申請日' },
+  { key: 'grant_request_amount', label: '要望額' },
+]
+
+function SortIcon({ active, order }: { active: boolean; order: SortOrder }) {
+  if (!active) return <span className="ml-1 text-gray-300">↕</span>
+  return <span className="ml-1">{order === 'ASC' ? '↑' : '↓'}</span>
+}
+
+export default function SubmissionTable({ submissions, onSelect, sortKey, sortOrder, onSort }: Props) {
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
         <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wider">
-          <th className="px-4 py-2 border-b">ID</th>
-          <th className="px-4 py-2 border-b">団体名</th>
-          <th className="px-4 py-2 border-b">事業名</th>
-          <th className="px-4 py-2 border-b">ステータス</th>
-          <th className="px-4 py-2 border-b">申請日</th>
-          <th className="px-4 py-2 border-b">要望額</th>
+          {COLUMNS.map(col => (
+            <th
+              key={col.key}
+              className="px-4 py-2 border-b cursor-pointer select-none hover:bg-gray-100"
+              onClick={() => onSort(col.key)}
+            >
+              {col.label}
+              <SortIcon active={sortKey === col.key} order={sortOrder} />
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
