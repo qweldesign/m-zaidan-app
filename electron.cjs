@@ -1,6 +1,8 @@
 require('dotenv').config()
 
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, shell } = require('electron')
+const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 const TOKEN = process.env.API_TOKEN
@@ -45,6 +47,29 @@ ipcMain.handle('patch-api', async (_, path, body) => {
   })
   const data = await res.json()
   return { status: res.status, data }
+})
+
+// 画像をbase64で返す
+ipcMain.handle('fetch-file', async (_, filePath) => {
+  const res = await fetch(`${BASE_URL}/api/files?path=${encodeURIComponent(filePath)}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  })
+  const buffer = await res.arrayBuffer()
+  const base64 = Buffer.from(buffer).toString('base64')
+  const contentType = res.headers.get('content-type') ?? 'application/octet-stream'
+  return { base64, contentType }
+})
+
+// PDFを一時ファイルに保存して外部ビューアで開く
+ipcMain.handle('open-file', async (_, filePath) => {
+  const res = await fetch(`${BASE_URL}/api/files?path=${encodeURIComponent(filePath)}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  })
+  const buffer = await res.arrayBuffer()
+  const ext = filePath.split('.').pop() ?? 'bin'
+  const tmpPath = path.join(os.tmpdir(), `zaidan_${Date.now()}.${ext}`)
+  fs.writeFileSync(tmpPath, Buffer.from(buffer))
+  await shell.openPath(tmpPath)
 })
 
 app.whenReady().then(createWindow)

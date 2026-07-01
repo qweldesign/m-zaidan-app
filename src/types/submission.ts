@@ -28,7 +28,7 @@ export type Submission = {
   section2_json: Section2
   section3_json: Section3
   section4_json: Section4
-  section5_json: string
+  section5_json: Section5
   created_at: string
   updated_at: string
 }
@@ -120,4 +120,15 @@ export type Section4 = {
   hasCommunityInvolvement: 'あり' | 'なし'
   communityInvolvementDetail: string
   prNote: string
+}
+
+export type Section5 = {
+  photos: string[]
+  docs: {
+    regulations?: string
+    activityReport?: string
+    financialReport?: string
+    activityPlan?: string
+    financialPlan?: string
+  }
 }

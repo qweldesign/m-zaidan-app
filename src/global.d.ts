@@ -11,6 +11,11 @@ declare global {
         status: number
         data: unknown
       }>
+      fetchFile: (path: string) => Promise<{
+        base64: string
+        contentType: string
+      }>
+      openFile: (path: string) => Promise<void>
     }
   }
 }

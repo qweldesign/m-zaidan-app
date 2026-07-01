@@ -6,6 +6,7 @@ import Section1Panel from './Section1Panel'
 import Section2Panel from './Section2Panel'
 import Section3Panel from './Section3Panel'
 import Section4Panel from './Section4Panel'
+import Section5Panel from './Section5Panel'
 
 type Props = {
   submission: Submission
@@ -142,6 +143,11 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
           ? <Section4Panel data={s.section4_json} />
           : null
         }
+
+        {/* 添付ファイル */}
+        {s.section5_json && Object.keys(s.section5_json).length > 0 && (
+          <Section5Panel data={s.section5_json} />
+        )}
 
         {/* 申請日時 */}
         <section>
