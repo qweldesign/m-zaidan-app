@@ -14,6 +14,7 @@ type Params = {
 
 export function useSubmissions(params: Params = {}) {
   const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -32,6 +33,7 @@ export function useSubmissions(params: Params = {}) {
       const res = await window.electronAPI.fetchAPI(`/api/submissions?${query}`)
       if (res.status !== 200) throw new Error(`API error: ${res.status}`)
       setSubmissions((res.data as any).data.items as Submission[])
+      setTotal((res.data as any).data.total as number)
     } catch (e) {
       setError(e instanceof Error ? e.message : '不明なエラー')
     } finally {
@@ -41,5 +43,5 @@ export function useSubmissions(params: Params = {}) {
 
   useEffect(() => { fetch() }, [fetch])
 
-  return { submissions, loading, error, refetch: fetch }
+  return { submissions, total, loading, error, refetch: fetch }
 }
