@@ -1,9 +1,11 @@
 // src/App.tsx
 
 import { useState } from 'react'
+import { useSubmission } from './hooks/useSubmission'
 import { useSubmissions } from './hooks/useSubmissions'
 import SubmissionTable from './components/SubmissionTable'
 import Pagination from './components/Pagination'
+import SubmissionDetail from './components/detail/SubmissionDetail'
 import { Submission, SubmissionStatus } from './types/submission'
 
 type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
@@ -15,7 +17,8 @@ const LIMIT = 40
 export default function App() {
   const [status, setStatus] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
-  const [selected, setSelected] = useState<Submission | null>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const { submission: selected, loading: detailLoading } = useSubmission(selectedId)
   const [sortKey, setSortKey] = useState<SortKey>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC')
   const [offset, setOffset] = useState(0)
@@ -78,25 +81,41 @@ export default function App() {
       </div>
 
       {/* メインエリア */}
-      <main className="flex-1 overflow-auto px-6 py-4">
-        {loading && <p className="text-gray-500">読み込み中...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && !error && (
-          <>
-            <SubmissionTable
-              submissions={submissions}
-              onSelect={setSelected}
-              sortKey={sortKey}
-              sortOrder={sortOrder}
-              onSort={handleSort}
-            />
-            <Pagination
-              total={total}
-              limit={LIMIT}
-              offset={offset}
-              onPageChange={setOffset}
-            />
-          </>
+      <main className="flex-1 overflow-hidden flex">
+        {/* 左：一覧 */}
+        <div className="flex flex-col flex-1 overflow-auto px-6 py-4">
+          {loading && <p className="text-gray-500">読み込み中...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {!loading && !error && (
+            <>
+              <SubmissionTable
+                submissions={submissions}
+                onSelect={s => setSelectedId(s.id)}
+                sortKey={sortKey}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+              />
+              <Pagination
+                total={total}
+                limit={LIMIT}
+                offset={offset}
+                onPageChange={setOffset}
+              />
+            </>
+          )}
+        </div>
+
+        {/* 右：詳細 */}
+        {selectedId && (
+          <div className="w-120 border-l overflow-y-auto bg-white shrink-0">
+            {detailLoading && <p className="p-6 text-gray-500">読み込み中...</p>}
+            {selected && (
+              <SubmissionDetail
+                submission={selected}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+          </div>
         )}
       </main>
     </div>
