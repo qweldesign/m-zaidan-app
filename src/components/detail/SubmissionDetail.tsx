@@ -2,6 +2,10 @@
 
 import { useState } from 'react'
 import { Submission, SubmissionStatus } from '../../types/submission'
+import Section1Panel from './Section1Panel'
+import Section2Panel from './Section2Panel'
+import Section3Panel from './Section3Panel'
+import Section4Panel from './Section4Panel'
 
 type Props = {
   submission: Submission
@@ -77,43 +81,67 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
 
         {/* 団体情報 */}
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">団体情報</h2>
-          <Row label="団体名" value={s.team_name} />
-          <Row label="フリガナ" value={s.team_name_kana} />
-          <Row label="郵便番号" value={s.team_postal_code} />
-          <Row label="所在地" value={s.team_address} />
-          <Row label="設立年" value={s.established_year ? `${s.established_year}年` : null} />
-          <Row label="活動区分" value={s.activity_category} />
-        </section>
+        {s.section1_json && Object.keys(s.section1_json).length > 0
+          ? <Section1Panel data={s.section1_json} />
+          : (
+            <>
+              {/* 団体情報 */}
+              <section>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">団体情報</h2>
+                <Row label="団体名" value={s.team_name} />
+                <Row label="フリガナ" value={s.team_name_kana} />
+                <Row label="郵便番号" value={s.team_postal_code} />
+                <Row label="所在地" value={s.team_address} />
+                <Row label="設立年" value={s.established_year ? `${s.established_year}年` : null} />
+                <Row label="活動区分" value={s.activity_category} />
+              </section>
 
-        {/* 代表者・担当者 */}
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">代表者・担当者</h2>
-          <Row label="代表者名" value={s.representative_name} />
-          <Row label="代表者メール" value={s.representative_email} />
-          <Row label="代表者電話" value={s.representative_phone} />
-          <Row label="担当者名" value={s.contact_name} />
-          <Row label="担当者メール" value={s.contact_email} />
-          <Row label="担当者電話" value={s.contact_phone} />
-        </section>
+              {/* 代表者・担当者 */}
+              <section>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">代表者・担当者</h2>
+                <Row label="代表者名" value={s.representative_name} />
+                <Row label="代表者メール" value={s.representative_email} />
+                <Row label="代表者電話" value={s.representative_phone} />
+                <Row label="担当者名" value={s.contact_name} />
+                <Row label="担当者メール" value={s.contact_email} />
+                <Row label="担当者電話" value={s.contact_phone} />
+              </section>
+            </>
+          )
+        }
 
         {/* 事業情報 */}
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">事業情報</h2>
-          <Row label="事業名" value={s.project_name} />
-          <Row label="開始日" value={s.start_date} />
-          <Row label="終了日" value={s.end_date} />
-          <Row label="開催場所" value={s.venue} />
-        </section>
+        {s.section2_json && Object.keys(s.section2_json).length > 0
+          ? <Section2Panel data={s.section2_json} />
+          : (
+            <section>
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">事業情報</h2>
+              <Row label="事業名" value={s.project_name} />
+              <Row label="開始日" value={s.start_date} />
+              <Row label="終了日" value={s.end_date} />
+              <Row label="開催場所" value={s.venue} />
+            </section>
+          )
+        }
 
         {/* 金額 */}
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">金額</h2>
-          <Row label="助成金要望額" value={s.grant_request_amount != null ? `${s.grant_request_amount.toLocaleString()}円` : null} />
-          <Row label="支出合計" value={s.total_expense_amount != null ? `${s.total_expense_amount.toLocaleString()}円` : null} />
-          <Row label="助成金使用額" value={s.grant_usage_amount != null ? `${s.grant_usage_amount.toLocaleString()}円` : null} />
-        </section>
+        {s.section3_json && Object.keys(s.section3_json).length > 0
+          ? <Section3Panel data={s.section3_json} />
+          : (
+            <section>
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">金額</h2>
+              <Row label="助成金要望額" value={s.grant_request_amount != null ? `${s.grant_request_amount.toLocaleString()}円` : null} />
+              <Row label="支出合計" value={s.total_expense_amount != null ? `${s.total_expense_amount.toLocaleString()}円` : null} />
+              <Row label="助成金使用額" value={s.grant_usage_amount != null ? `${s.grant_usage_amount.toLocaleString()}円` : null} />
+            </section>
+          )
+        }
+
+        {/* 団体詳細 */}
+        {s.section4_json && Object.keys(s.section4_json).length > 0
+          ? <Section4Panel data={s.section4_json} />
+          : null
+        }
 
         {/* 申請日時 */}
         <section>
