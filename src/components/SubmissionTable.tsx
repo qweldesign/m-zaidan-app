@@ -35,7 +35,7 @@ function SortIcon({ active, order }: { active: boolean; order: SortOrder }) {
 
 export default function SubmissionTable({ submissions, onSelect, sortKey, sortOrder, onSort }: Props) {
   return (
-    <table className="w-full text-sm border-collapse">
+    <table className="w-full min-w-160 text-sm border-collapse">
       <thead>
         <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wider">
           {COLUMNS.map(col => (

@@ -9,7 +9,10 @@ export function useSubmission(id: number | null) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (id === null) return
+    if (id === null) {
+      setSubmission(null)
+      return
+    }
     setLoading(true)
     setError(null)
     window.electronAPI.fetchAPI(`/api/submissions/${id}`)

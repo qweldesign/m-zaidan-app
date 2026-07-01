@@ -81,9 +81,9 @@ export default function App() {
       </div>
 
       {/* メインエリア */}
-      <main className="flex-1 overflow-hidden flex">
+      <main className="relative flex-1 overflow-hidden flex">
         {/* 左：一覧 */}
-        <div className="flex flex-col flex-1 overflow-auto px-6 py-4">
+        <div className="flex flex-col h-full overflow-auto px-6 py-4">
           {loading && <p className="text-gray-500">読み込み中...</p>}
           {error && <p className="text-red-500">{error}</p>}
           {!loading && !error && (
@@ -107,7 +107,7 @@ export default function App() {
 
         {/* 右：詳細 */}
         {selected && (
-          <div className="w-120 border-l overflow-y-auto bg-white shrink-0">
+          <div className="absolute top-0 right-0 h-full w-120 border-l shadow-xl overflow-y-auto bg-white">
             {detailLoading && <p className="p-6 text-gray-500">読み込み中...</p>}
             {selected && (
               <SubmissionDetail
