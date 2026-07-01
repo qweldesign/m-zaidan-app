@@ -7,6 +7,10 @@ declare global {
         status: number
         data: unknown
       }>
+      patchAPI: (path: string, body: unknown) => Promise<{
+        status: number
+        data: unknown
+      }>
     }
   }
 }

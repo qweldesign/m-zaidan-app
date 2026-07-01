@@ -34,6 +34,19 @@ ipcMain.handle('fetch-api', async (_, path, options = {}) => {
   return { status: res.status, data }
 })
 
+ipcMain.handle('patch-api', async (_, path, body) => {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json()
+  return { status: res.status, data }
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

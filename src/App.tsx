@@ -23,7 +23,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('DESC')
   const [offset, setOffset] = useState(0)
 
-  const { submissions, total, loading, error } = useSubmissions({
+  const { submissions, total, loading, error, refetch } = useSubmissions({
     status: status || undefined,
     keyword: keyword || undefined,
     order_by: sortKey,
@@ -106,13 +106,14 @@ export default function App() {
         </div>
 
         {/* 右：詳細 */}
-        {selectedId && (
+        {selected && (
           <div className="w-120 border-l overflow-y-auto bg-white shrink-0">
             {detailLoading && <p className="p-6 text-gray-500">読み込み中...</p>}
             {selected && (
               <SubmissionDetail
                 submission={selected}
                 onClose={() => setSelectedId(null)}
+                onUpdated={refetch}
               />
             )}
           </div>

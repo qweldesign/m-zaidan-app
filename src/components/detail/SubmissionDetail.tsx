@@ -1,11 +1,15 @@
 // src/components/detail/SubmissionDetail.tsx
 
-import { Submission } from '../../types/submission'
+import { useState } from 'react'
+import { Submission, SubmissionStatus } from '../../types/submission'
 
 type Props = {
   submission: Submission
   onClose: () => void
+  onUpdated: () => void
 }
+
+const STATUSES: SubmissionStatus[] = ['未審査', '審査中', '承認', '否決', '保留']
 
 const STATUS_COLOR: Record<string, string> = {
   '未審査': 'bg-gray-100 text-gray-700',
@@ -24,15 +28,41 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-export default function SubmissionDetail({ submission: s, onClose }: Props) {
+export default function SubmissionDetail({ submission: s, onClose, onUpdated }: Props) {
+  const [status, setStatus] = useState<SubmissionStatus>(s.status)
+  const [saving, setSaving] = useState(false)
+
+  const handleStatusChange = async (newStatus: SubmissionStatus) => {
+    setStatus(newStatus)
+    setSaving(true)
+    try {
+      const res = await window.electronAPI.patchAPI(`/api/submissions/${s.id}`, { status: newStatus })
+      if (res.status !== 200) throw new Error(`API error: ${res.status}`)
+      onUpdated()
+    } catch (e) {
+      alert('ステータスの更新に失敗しました')
+      setStatus(s.status) // 元に戻す
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* ヘッダー */}
       <div className="flex items-center justify-between px-5 py-3 border-b bg-gray-50">
         <div className="flex items-center gap-2">
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[s.status] ?? ''}`}>
-            {s.status}
-          </span>
+          <select
+            className={`px-2 py-0.5 rounded-full text-xs font-medium border-0 cursor-pointer ${STATUS_COLOR[status] ?? ''}`}
+            value={status}
+            disabled={saving}
+            onChange={e => handleStatusChange(e.target.value as SubmissionStatus)}
+          >
+            {STATUSES.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          {saving && <span className="text-xs text-gray-400">保存中...</span>}
           <span className="text-sm font-bold">#{s.id}</span>
         </div>
         <button
