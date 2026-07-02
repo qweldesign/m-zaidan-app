@@ -19,8 +19,8 @@ export default function App() {
   const [keyword, setKeyword] = useState<string>('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const { submission: selected, loading: detailLoading } = useSubmission(selectedId)
-  const [sortKey, setSortKey] = useState<SortKey>('created_at')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC')
+  const [sortKey, setSortKey] = useState<SortKey>('id')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC')
   const [offset, setOffset] = useState(0)
 
   const { submissions, total, loading, error, refetch } = useSubmissions({
