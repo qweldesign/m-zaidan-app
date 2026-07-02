@@ -92,6 +92,48 @@ ipcMain.handle('export-csv', async () => {
   return { canceled: false, filePath }
 })
 
+// PDFを保存する
+ipcMain.handle('export-pdf', async (_, submissionId) => {
+  const { filePath, canceled } = await dialog.showSaveDialog({
+    title: 'PDFを保存',
+    defaultPath: `submission_${submissionId}_${new Date().toISOString().slice(0, 10)}.pdf`,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  })
+
+  if (canceled || !filePath) return { canceled: true }
+
+  // 印刷用ウィンドウを作成
+  const printWin = new BrowserWindow({
+    width: 800,
+    height: 1000,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  })
+
+  printWin.loadURL(`http://localhost:5173/print/${submissionId}`)
+
+  await new Promise(resolve => {
+    printWin.webContents.once('did-finish-load', resolve)
+  })
+
+  // 少し待ってからPDF化（データ取得完了を待つ）
+  await new Promise(resolve => setTimeout(resolve, 1500))
+
+  const pdfData = await printWin.webContents.printToPDF({
+    printBackground: true,
+    pageSize: 'A4',
+  })
+
+  fs.writeFileSync(filePath, pdfData)
+  printWin.close()
+
+  return { canceled: false, filePath }
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

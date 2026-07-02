@@ -52,6 +52,13 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
     }
   }
 
+  const handleExportPDF = async () => {
+    const result = await window.electronAPI.exportPDF(s.id)
+    if (!result.canceled) {
+      alert(`保存しました:\n${result.filePath}`)
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* ヘッダー */}
@@ -70,6 +77,12 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
           {saving && <span className="text-xs text-gray-400">保存中...</span>}
           <span className="text-sm font-bold">#{s.id}</span>
         </div>
+        <button
+          className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 border rounded"
+          onClick={handleExportPDF}
+        >
+          PDF出力
+        </button>
         <button
           className="text-gray-400 hover:text-gray-700 text-lg leading-none"
           onClick={onClose}
