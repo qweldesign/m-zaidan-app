@@ -53,11 +53,26 @@ export default function App() {
     setOffset(0)
   }
 
+  const handleExportCSV = async () => {
+    const result = await window.electronAPI.exportCSV()
+    if (!result.canceled) {
+      alert(`保存しました:\n${result.filePath}`)
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen">
       {/* ヘッダー */}
       <header className="bg-blue-700 text-white px-6 py-3 flex items-center gap-4">
         <h1 className="text-lg font-bold">助成金申請管理</h1>
+        <div className="ml-auto flex gap-2">
+          <button
+            className="bg-white text-blue-700 text-sm px-3 py-1 rounded hover:bg-blue-50"
+            onClick={handleExportCSV}
+          >
+            CSV出力
+          </button>
+        </div>
       </header>
 
       {/* フィルタバー */}

@@ -5,4 +5,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   patchAPI: (path, body) => ipcRenderer.invoke('patch-api', path, body),
   fetchFile: (path) => ipcRenderer.invoke('fetch-file', path),
   openFile: (path) => ipcRenderer.invoke('open-file', path),
+  exportCSV: () => ipcRenderer.invoke('export-csv'),
 })

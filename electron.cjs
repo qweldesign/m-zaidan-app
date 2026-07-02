@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const { app, BrowserWindow, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
@@ -70,6 +70,26 @@ ipcMain.handle('open-file', async (_, filePath) => {
   const tmpPath = path.join(os.tmpdir(), `zaidan_${Date.now()}.${ext}`)
   fs.writeFileSync(tmpPath, Buffer.from(buffer))
   await shell.openPath(tmpPath)
+})
+
+// CSVを保存する
+ipcMain.handle('export-csv', async () => {
+  // 保存先をダイアログで選択
+  const { filePath, canceled } = await dialog.showSaveDialog({
+    title: 'CSVを保存',
+    defaultPath: `submissions_${new Date().toISOString().slice(0, 10)}.csv`,
+    filters: [{ name: 'CSV', extensions: ['csv'] }],
+  })
+
+  if (canceled || !filePath) return { canceled: true }
+
+  const res = await fetch(`${BASE_URL}/api/submissions/export/csv`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  })
+
+  const buffer = await res.arrayBuffer()
+  fs.writeFileSync(filePath, Buffer.from(buffer))
+  return { canceled: false, filePath }
 })
 
 app.whenReady().then(createWindow)

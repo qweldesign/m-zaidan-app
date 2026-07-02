@@ -16,6 +16,10 @@ declare global {
         contentType: string
       }>
       openFile: (path: string) => Promise<void>
+      exportCSV: () => Promise<{
+        canceled: boolean
+        filePath?: string
+      }>
     }
   }
 }
