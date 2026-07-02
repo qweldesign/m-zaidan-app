@@ -6,7 +6,8 @@ import { useSubmissions } from './hooks/useSubmissions'
 import SubmissionTable from './components/SubmissionTable'
 import Pagination from './components/Pagination'
 import SubmissionDetail from './components/detail/SubmissionDetail'
-import { Submission, SubmissionStatus } from './types/submission'
+import { SubmissionStatus } from './types/submission'
+import ErrorMessage from './components/ErrorMessage'
 
 type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
 type SortOrder = 'ASC' | 'DESC'
@@ -100,7 +101,7 @@ export default function App() {
         {/* 左：一覧 */}
         <div className="flex flex-col h-full overflow-auto px-6 py-4">
           {loading && <p className="text-gray-500">読み込み中...</p>}
-          {error && <p className="text-red-500">{error}</p>}
+          {error && <ErrorMessage message={error} onRetry={refetch} />}
           {!loading && !error && (
             <>
               <SubmissionTable

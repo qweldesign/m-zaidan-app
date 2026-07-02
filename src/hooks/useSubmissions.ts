@@ -35,7 +35,11 @@ export function useSubmissions(params: Params = {}) {
       setSubmissions((res.data as any).data.items as Submission[])
       setTotal((res.data as any).data.total as number)
     } catch (e) {
-      setError(e instanceof Error ? e.message : '不明なエラー')
+      if (e instanceof TypeError && e.message.includes('fetch')) {
+        setError('サーバーに接続できません。ネットワークを確認してください。')
+      } else {
+        setError(e instanceof Error ? e.message : '不明なエラーが発生しました')
+      }
     } finally {
       setLoading(false)
     }
