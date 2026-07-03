@@ -12,7 +12,7 @@ import ErrorMessage from './components/ErrorMessage'
 type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
 type SortOrder = 'ASC' | 'DESC'
 
-const STATUSES: SubmissionStatus[] = ['未審査', '審査中', '承認', '否決', '保留']
+const STATUSES: SubmissionStatus[] = ['審査中', '承認', '否決', '対象外']
 const LIMIT = 40
 
 export default function App() {

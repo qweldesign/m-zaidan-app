@@ -1,6 +1,6 @@
 // src/types/submission.ts
 
-export type SubmissionStatus = '未審査' | '審査中' | '承認' | '否決' | '保留'
+export type SubmissionStatus = '審査中' | '承認' | '否決' | '対象外'
 
 export type Submission = {
   id: number
