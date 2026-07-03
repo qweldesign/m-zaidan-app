@@ -2,6 +2,8 @@
 
 export type SubmissionStatus = '審査中' | '承認' | '否決' | '対象外'
 
+export type ActivityCategory = 'ボランティア活動' | 'スポーツ活動' | 'その他市民活動'
+
 export type Submission = {
   id: number
   status: SubmissionStatus
@@ -10,7 +12,7 @@ export type Submission = {
   team_postal_code: string
   team_address: string
   established_year: number
-  activity_category: 'ボランティア活動' | 'スポーツ活動' | 'その他市民活動'
+  activity_category: ActivityCategory
   representative_name: string
   representative_email: string
   representative_phone: string

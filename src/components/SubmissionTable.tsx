@@ -1,6 +1,6 @@
 import { Submission } from '../types/submission'
 
-type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
+type SortKey = 'id' | 'team_name' | 'project_name' | 'created_at' | 'activity_category' | 'status' | 'grant_request_amount'
 type SortOrder = 'ASC' | 'DESC'
 
 type Props = {
@@ -22,8 +22,9 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'id',                  label: 'ID' },
   { key: 'team_name',           label: '団体名' },
   { key: 'project_name',        label: '事業名' },
-  { key: 'status',              label: 'ステータス' },
   { key: 'created_at',          label: '申請日' },
+  { key: 'activity_category',    label: 'カテゴリ' },
+  { key: 'status',              label: 'ステータス' },
   { key: 'grant_request_amount', label: '要望額' },
 ]
 
@@ -59,12 +60,13 @@ export default function SubmissionTable({ submissions, onSelect, sortKey, sortOr
             <td className="px-4 py-2">{s.id}</td>
             <td className="px-4 py-2">{s.team_name}</td>
             <td className="px-4 py-2">{s.project_name}</td>
+            <td className="px-4 py-2">{s.created_at.slice(0, 10)}</td>
+            <td className="px-4 py-2">{s.activity_category}</td>
             <td className="px-4 py-2">
               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[s.status] ?? ''}`}>
                 {s.status}
               </span>
             </td>
-            <td className="px-4 py-2">{s.created_at.slice(0, 10)}</td>
             <td className="px-4 py-2 text-right">
               {s.grant_request_amount.toLocaleString()}円
             </td>

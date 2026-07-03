@@ -6,18 +6,26 @@ import { useSubmissions } from './hooks/useSubmissions'
 import SubmissionTable from './components/SubmissionTable'
 import Pagination from './components/Pagination'
 import SubmissionDetail from './components/detail/SubmissionDetail'
-import { SubmissionStatus } from './types/submission'
+import { SubmissionStatus, ActivityCategory } from './types/submission'
 import ErrorMessage from './components/ErrorMessage'
 
-type SortKey = 'id' | 'team_name' | 'project_name' | 'status' | 'created_at' | 'grant_request_amount'
+type SortKey = 'id' | 'team_name' | 'project_name' | 'created_at' | 'activity_category' | 'status' | 'grant_request_amount'
 type SortOrder = 'ASC' | 'DESC'
 
+const currentYear = new Date().getFullYear()
+const YEARS: string[] = Array.from(
+  { length: currentYear - 2025 + 1 },
+  (_, i) => String(2025 + i)
+)
+const CATEGORIES: ActivityCategory[] = ['ボランティア活動', 'スポーツ活動', 'その他市民活動']
 const STATUSES: SubmissionStatus[] = ['審査中', '承認', '否決', '対象外']
 const LIMIT = 40
 
 export default function App() {
   const [status, setStatus] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
+  const [category, setCategory] = useState<string>('')
+  const [year, setYear] = useState<string>(String(new Date().getFullYear()))
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const { submission: selected, loading: detailLoading } = useSubmission(selectedId)
   const [sortKey, setSortKey] = useState<SortKey>('id')
@@ -27,6 +35,8 @@ export default function App() {
   const { submissions, total, loading, error, refetch } = useSubmissions({
     status: status || undefined,
     keyword: keyword || undefined,
+    activity_category: category || undefined,
+    year: year || undefined,
     order_by: sortKey,
     order: sortOrder,
     limit: LIMIT,
@@ -51,6 +61,16 @@ export default function App() {
 
   const handleKeywordChange = (value: string) => {
     setKeyword(value)
+    setOffset(0)
+  }
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value)
+    setOffset(0)
+  }
+
+  const handleYearChange = (value: string) => {
+    setYear(value)
     setOffset(0)
   }
 
@@ -80,10 +100,30 @@ export default function App() {
       <div className="flex items-center gap-3 px-6 py-3 border-b bg-white">
         <select
           className="border rounded px-2 py-1 text-sm"
+          value={year}
+          onChange={e => handleYearChange(e.target.value)}
+        >
+          <option value="">すべての年</option>
+          {YEARS.map(y => (
+            <option key={y} value={y}>{y}年</option>
+          ))}
+        </select>
+        <select
+          className="border rounded px-2 py-1 text-sm"
+          value={category}
+          onChange={e => handleCategoryChange(e.target.value)}
+        >
+          <option value="">すべてのカテゴリ</option>
+          {CATEGORIES.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select
+          className="border rounded px-2 py-1 text-sm"
           value={status}
           onChange={e => handleStatusChange(e.target.value)}
         >
-          <option value="">すべて</option>
+          <option value="">すべてのステータス</option>
           {STATUSES.map(s => (
             <option key={s} value={s}>{s}</option>
           ))}
