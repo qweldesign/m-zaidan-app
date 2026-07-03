@@ -123,7 +123,7 @@ export default function App() {
 
         {/* 右：詳細 */}
         {selected && (
-          <div className="absolute top-0 right-0 h-full w-120 border-l shadow-xl overflow-y-auto bg-white">
+          <div className="absolute top-0 right-0 h-full w-1/2 border-l shadow-xl overflow-y-auto bg-white">
             {detailLoading && <p className="p-6 text-gray-500">読み込み中...</p>}
             {selected && (
               <SubmissionDetail
