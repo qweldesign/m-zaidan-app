@@ -34,6 +34,17 @@ export default function Section2Panel({ data: d }: Props) {
         <Row label="運営日数" value={d.organizer?.days != null ? `${d.organizer.days}日` : null} />
         <Row label="参加人数" value={d.participants?.count != null ? `${d.participants.count}人` : null} />
         <Row label="参加日数" value={d.participants?.days != null ? `${d.participants.days}日` : null} />
+        <Row
+          label="延べ参加人数"
+          value={(() => {
+            const oCount = Number(d.organizer?.count ?? 0)
+            const oDays  = Number(d.organizer?.days  ?? 0)
+            const pCount = Number(d.participants?.count ?? 0)
+            const pDays  = Number(d.participants?.days  ?? 0)
+            const total  = oCount * oDays + pCount * pDays
+            return total > 0 ? `${total}人` : null
+          })()}
+        />
       </section>
 
       <section>

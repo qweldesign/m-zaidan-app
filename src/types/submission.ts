@@ -65,6 +65,12 @@ export type Section1 = {
   representativePhone: string
   representativeEmail: string
   sameAsRepresentative: boolean
+  
+  // 担当者情報（sameAsRepresentative が false の場合のみ存在）
+  contactName?: string
+  contactNameKana?: string
+  contactPhone?: string
+  contactEmail?: string
 }
 
 export type Section2 = {

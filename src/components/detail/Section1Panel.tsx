@@ -35,6 +35,17 @@ export default function Section1Panel({ data: d }: Props) {
         <Row label="21〜40歳" value={d.members?.age21to40 != null ? `${d.members.age21to40}人` : null} />
         <Row label="41〜60歳" value={d.members?.age41to60 != null ? `${d.members.age41to60}人` : null} />
         <Row label="61歳以上" value={d.members?.over61 != null ? `${d.members.over61}人` : null} />
+        <Row
+          label="会員総数"
+          value={(() => {
+            if (!d.members) return null
+            const total = Number(d.members.under20 ?? 0)
+                        + Number(d.members.age21to40 ?? 0)
+                        + Number(d.members.age41to60 ?? 0)
+                        + Number(d.members.over61 ?? 0)
+            return total > 0 ? `${total}人` : null
+          })()}
+        />
       </section>
 
       <section>
@@ -55,6 +66,16 @@ export default function Section1Panel({ data: d }: Props) {
         <Row label="メール" value={d.representativeEmail} />
         <Row label="担当者兼務" value={d.sameAsRepresentative ? 'はい' : 'いいえ'} />
       </section>
+
+      {!d.sameAsRepresentative && (
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">担当者情報</h2>
+          <Row label="担当者名" value={d.contactName} />
+          <Row label="フリガナ" value={d.contactNameKana} />
+          <Row label="電話番号" value={d.contactPhone} />
+          <Row label="メール" value={d.contactEmail} />
+        </section>
+      )}
 
       <section>
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">応募経路</h2>
