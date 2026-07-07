@@ -10,8 +10,8 @@ const BASE_URL = process.env.API_BASE_URL
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 900,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,

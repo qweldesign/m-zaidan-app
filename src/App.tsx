@@ -26,7 +26,7 @@ const YEARS: string[] = Array.from(
   { length: currentYear - 2025 + 1 },
   (_, i) => String(2025 + i)
 )
-const LIMIT = 10
+const LIMIT = 50
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('submissions')
