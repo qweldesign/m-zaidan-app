@@ -1,9 +1,16 @@
-require('dotenv').config()
-
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
+
+// app.isPackaged の代わりに process.execPath で判定
+const isPackaged = !process.execPath.includes('electron')
+
+const envPath = isPackaged
+  ? path.join(path.dirname(process.execPath), '.env')
+  : path.join(__dirname, '.env')
+
+require('dotenv').config({ path: envPath })
 
 const TOKEN = process.env.API_TOKEN
 const BASE_URL = process.env.API_BASE_URL
@@ -19,12 +26,16 @@ function createWindow() {
     },
   })
 
-  win.loadURL('http://localhost:5173')
-  win.webContents.openDevTools()
+  if (!app.isPackaged) {
+    win.loadURL('http://localhost:5173')
+    win.webContents.openDevTools()
+  } else {
+    win.loadFile(path.join(__dirname, 'dist/index.html'))
+  }
 }
 
-ipcMain.handle('fetch-api', async (_, path, options = {}) => {
-  const res = await fetch(`${BASE_URL}${path}`, {
+ipcMain.handle('fetch-api', async (_, apiPath, options = {}) => {
+  const res = await fetch(`${BASE_URL}${apiPath}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -36,8 +47,8 @@ ipcMain.handle('fetch-api', async (_, path, options = {}) => {
   return { status: res.status, data }
 })
 
-ipcMain.handle('patch-api', async (_, path, body) => {
-  const res = await fetch(`${BASE_URL}${path}`, {
+ipcMain.handle('patch-api', async (_, apiPath, body) => {
+  const res = await fetch(`${BASE_URL}${apiPath}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -114,7 +125,13 @@ ipcMain.handle('export-pdf', async (_, submissionId) => {
     },
   })
 
-  printWin.loadURL(`http://localhost:5173/print/${submissionId}`)
+  if (!app.isPackaged) {
+    printWin.loadURL(`http://localhost:5173/#/print/${submissionId}`)
+  } else {
+    printWin.loadFile(path.join(__dirname, 'dist/index.html'), {
+      hash: `/print/${submissionId}`
+    })
+  }
 
   await new Promise(resolve => {
     printWin.webContents.once('did-finish-load', resolve)
@@ -155,7 +172,13 @@ ipcMain.handle('export-report-pdf', async (_, reportId) => {
     },
   })
 
-  printWin.loadURL(`http://localhost:5173/print-report/${reportId}`)
+  if (!app.isPackaged) {
+    printWin.loadURL(`http://localhost:5173/print-report/${reportId}`)
+  } else {
+    printWin.loadFile(path.join(__dirname, 'dist/index.html'), {
+      hash: `/print-report/${reportId}`
+    })
+  }
 
   await new Promise(resolve => {
     printWin.webContents.once('did-finish-load', resolve)

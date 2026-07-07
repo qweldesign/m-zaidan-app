@@ -1,30 +1,58 @@
 {
-  "name": "qwel-app",
-  "version": "0.0.0",
+  "name": "m-zaidan-app",
+  "version": "1.0.0",
   "description": "",
   "main": "electron.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "electron": "set NODE_ENV=development && electron .",
-    "start": "npm run build && electron ."
+    "electron": "cross-env NODE_ENV=development electron .",
+    "dist": "npm run build && cross-env NODE_ENV=production electron-builder"
+  },
+  "build": {
+    "appId": "design.qwel.mzaidan",
+    "productName": "助成金申請管理システム",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron.cjs",
+      "preload.cjs",
+      ".env"
+    ],
+    "extraFiles": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "logo.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/qweldesign/qwel-app.git"
+    "url": "git+https://github.com/qweldesign/m-zaidan-app.git"
   },
   "keywords": [],
   "author": "QWEL.DESIGN",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/qweldesign/qwel-app/issues"
+    "url": "https://github.com/qweldesign/m-zaidan-app/issues"
   },
-  "homepage": "https://github.com/qweldesign/qwel-app#readme",
+  "homepage": "https://github.com/qweldesign/m-zaidan-app#readme",
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "cross-env": "^10.1.0",
     "electron": "^42.4.1",
     "electron-builder": "^26.15.3",
     "tailwindcss": "^4.3.1",
