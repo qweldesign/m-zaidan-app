@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import App from './App'
 import PrintView from './pages/PrintView'
+import PrintReportView from './pages/PrintReportView'
 import './index.css'
 
 const root = document.getElementById('root')
@@ -13,6 +14,7 @@ createRoot(root).render(
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/print/:id" element={<PrintView />} />
+      <Route path="/print-report/:id" element={<PrintReportView />} />
     </Routes>
   </BrowserRouter>
 )

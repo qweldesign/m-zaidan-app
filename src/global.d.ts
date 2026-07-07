@@ -24,6 +24,10 @@ declare global {
         canceled: boolean
         filePath?: string
       }>
+      exportReportPDF: (id: number) => Promise<{
+        canceled: boolean
+        filePath?: string
+      }>
     }
   }
 }

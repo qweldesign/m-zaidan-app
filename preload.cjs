@@ -7,4 +7,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFile: (path) => ipcRenderer.invoke('open-file', path),
   exportCSV: () => ipcRenderer.invoke('export-csv'),
   exportPDF: (id) => ipcRenderer.invoke('export-pdf', id),
+  exportReportPDF: (id) => ipcRenderer.invoke('export-report-pdf', id),
 })
