@@ -55,7 +55,7 @@ export default function SubmissionTable({ submissions, onSelect, sortKey, sortOr
         {submissions.map(s => (
           <tr
             key={s.id}
-            className="hover:bg-blue-50 cursor-pointer border-b"
+            className={`hover:bg-blue-50 cursor-pointer border-b ${s.is_deleted === 1 ? 'opacity-40' : ''}`}
             onClick={() => onSelect(s)}
           >
             <td className="px-4 py-2">{s.id}</td>

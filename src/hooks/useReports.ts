@@ -7,6 +7,7 @@ type Params = {
   keyword?: string
   activity_category?: string
   year?: string
+  include_deleted?: boolean
   order_by?: string
   order?: 'ASC' | 'DESC'
   limit?: number
@@ -27,6 +28,7 @@ export function useReports(params: Params = {}) {
       if (params.keyword)  query.set('keyword', params.keyword)
       if (params.activity_category) query.set('activity_category', params.activity_category)
       if (params.year)     query.set('year', params.year)
+      if (params.include_deleted) query.set('include_deleted', '1')
       if (params.order_by) query.set('order_by', params.order_by)
       if (params.order)    query.set('order', params.order)
       if (params.limit)    query.set('limit', String(params.limit))

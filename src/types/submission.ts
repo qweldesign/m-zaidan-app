@@ -33,6 +33,8 @@ export type Submission = {
   section5_json: Section5
   created_at: string
   updated_at: string
+  is_deleted: number
+  deleted_at: string | null
 }
 
 export type Section1 = {

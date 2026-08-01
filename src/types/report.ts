@@ -60,4 +60,6 @@ export type Report = {
   report_section2_json: ReportSection2Data
   created_at: string
   updated_at: string
+  is_deleted: number
+  deleted_at: string | null
 }

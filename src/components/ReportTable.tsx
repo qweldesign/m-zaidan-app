@@ -56,7 +56,7 @@ export default function ReportTable({ reports, onSelect, sortKey, sortOrder, onS
         {reports.map(r => (
           <tr
             key={r.id}
-            className="hover:bg-blue-50 cursor-pointer border-b"
+            className={`hover:bg-blue-50 cursor-pointer border-b ${r.is_deleted === 1 ? 'opacity-40' : ''}`}
             onClick={() => onSelect(r)}
           >
             <td className="px-4 py-2">{r.id}</td>

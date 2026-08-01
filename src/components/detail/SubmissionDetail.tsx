@@ -59,6 +59,29 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
     }
   }
 
+  const handleDelete = async () => {
+    if (!confirm('この申請を削除しますか？')) return
+    try {
+      const res = await window.electronAPI.patchAPI(`/api/submissions/${s.id}`, { is_deleted: 1 })
+      if (res.status !== 200) throw new Error()
+      onUpdated()
+      onClose()
+    } catch {
+      alert('削除に失敗しました')
+    }
+  }
+
+  const handleRestore = async () => {
+    if (!confirm('この申請を復元しますか？')) return
+    try {
+      const res = await window.electronAPI.patchAPI(`/api/submissions/${s.id}`, { is_deleted: 0 })
+      if (res.status !== 200) throw new Error()
+      onUpdated()
+    } catch {
+      alert('復元に失敗しました')
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* ヘッダー */}
@@ -84,6 +107,23 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
           >
             PDF出力
           </button>
+          {s.is_deleted === 1
+            ? (
+              <button
+                className="text-xs text-green-600 hover:text-green-800 mr-4 px-2 py-1 border border-green-300 rounded"
+                onClick={handleRestore}
+              >
+                復元
+              </button>
+            ) : (
+              <button
+                className="text-xs text-red-400 hover:text-red-600 mr-4 px-2 py-1 border border-red-200 rounded"
+                onClick={handleDelete}
+              >
+                削除
+              </button>
+            )
+          }
           <button
             className="text-gray-400 hover:text-gray-700 text-lg leading-none"
             onClick={onClose}

@@ -36,6 +36,8 @@ export default function App() {
   const [keyword, setKeyword] = useState<string>('')
   const [category, setCategory] = useState<string>('')
   const [year, setYear] = useState<string>(String(currentYear))
+  const [includeDeleted, setIncludeDeleted] = useState(false)
+const [reportIncludeDeleted, setReportIncludeDeleted] = useState(false)
   const [sortKey, setSortKey] = useState<SubmissionSortKey>('id')
   const [sortOrder, setSortOrder] = useState<SortOrder>('ASC')
   const [offset, setOffset] = useState(0)
@@ -57,6 +59,7 @@ export default function App() {
     keyword: keyword || undefined,
     activity_category: category || undefined,
     year: year || undefined,
+    include_deleted: includeDeleted,
     order_by: sortKey,
     order: sortOrder,
     limit: LIMIT,
@@ -67,6 +70,7 @@ export default function App() {
     keyword: reportKeyword || undefined,
     activity_category: reportCategory || undefined,
     year: reportYear || undefined,
+    include_deleted: reportIncludeDeleted,
     order_by: reportSortKey,
     order: reportSortOrder,
     limit: LIMIT,
@@ -143,6 +147,12 @@ export default function App() {
               <option value="">すべてのステータス</option>
               {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
+            <button
+              className={`text-sm px-3 py-1 rounded border ${includeDeleted ? 'bg-red-50 text-red-600 border-red-300' : 'text-gray-500 border-gray-300'}`}
+              onClick={() => { setIncludeDeleted(prev => !prev); setOffset(0) }}
+            >
+              {includeDeleted ? '削除済みを含む' : '削除済みを含まない'}
+            </button>
             <input
               className="border rounded px-2 py-1 text-sm w-60"
               placeholder="団体名・事業名で検索"
@@ -203,6 +213,12 @@ export default function App() {
               <option value="">すべてのカテゴリ</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+            <button
+              className={`text-sm px-3 py-1 rounded border ${reportIncludeDeleted ? 'bg-red-50 text-red-600 border-red-300' : 'text-gray-500 border-gray-300'}`}
+              onClick={() => { setReportIncludeDeleted(prev => !prev); setReportOffset(0) }}
+            >
+              {reportIncludeDeleted ? '削除済みを含む' : '削除済みを含まない'}
+            </button>
             <input
               className="border rounded px-2 py-1 text-sm w-60"
               placeholder="団体名・事業名で検索"
