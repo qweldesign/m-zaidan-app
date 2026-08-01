@@ -133,10 +133,10 @@ export type Section4 = {
 export type Section5 = {
   photos: string[]
   docs: {
-    regulations?: string
-    activityReport?: string
-    financialReport?: string
-    activityPlan?: string
-    financialPlan?: string
+    regulations?: string | string[]
+    activityReport?: string | string[]
+    financialReport?: string | string[]
+    activityPlan?: string | string[]
+    financialPlan?: string | string[]
   }
 }

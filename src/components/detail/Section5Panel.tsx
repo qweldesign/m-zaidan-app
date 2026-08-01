@@ -55,34 +55,40 @@ function PhotoItem({ filePath }: { filePath: string }) {
 
 type DocRowProps = {
   label: string
-  filePath: string
+  filePaths: string[]
 }
 
-function DocRow({ label, filePath }: DocRowProps) {
-  const [error, setError] = useState(false)
+function DocRow({ label, filePaths }: DocRowProps) {
+  const [errors, setErrors] = useState<Record<number, boolean>>({})
 
-  const handleOpen = async () => {
+  const handleOpen = async (filePath: string, index: number) => {
     try {
       await window.electronAPI.openFile(filePath)
     } catch {
-      setError(true)
+      setErrors(prev => ({ ...prev, [index]: true }))
     }
   }
 
   return (
-    <div className="flex items-center gap-2 py-2 border-b text-sm">
+    <div className="flex gap-2 py-2 border-b text-sm">
       <span className="w-40 shrink-0 text-gray-500">{label}</span>
-      {error
-        ? <span className="text-red-400 text-xs">ファイルを開けませんでした</span>
-        : (
-          <button
-            className="text-blue-600 hover:underline"
-            onClick={handleOpen}
-          >
-            開く
-          </button>
-        )
-      }
+      <div className="flex flex-col gap-1">
+        {filePaths.map((filePath, index) => (
+          <div key={index}>
+            {errors[index]
+              ? <span className="text-red-400 text-xs">ファイルを開けませんでした</span>
+              : (
+                <button
+                  className="text-blue-600 hover:underline"
+                  onClick={() => handleOpen(filePath, index)}
+                >
+                  開く{filePaths.length > 1 ? `（${index + 1}）` : ''}
+                </button>
+              )
+            }
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -108,15 +114,17 @@ export default function Section5Panel({ data: d }: Props) {
         <section>
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">添付書類</h2>
           <div className="space-y-1">
-            {Object.entries(d.docs).map(([key, filePath]) =>
-              filePath ? (
+            {Object.entries(d.docs).map(([key, value]) => {
+              if (!value) return null
+              const paths = Array.isArray(value) ? value : [value]
+              return (
                 <DocRow
                   key={key}
                   label={DOC_LABELS[key] ?? key}
-                  filePath={filePath}
+                  filePaths={paths}
                 />
-              ) : null
-            )}
+              )
+            })}
           </div>
         </section>
       )}
