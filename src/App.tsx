@@ -19,7 +19,7 @@ type SubmissionSortKey = 'id' | 'team_name' | 'project_name' | 'activity_categor
 type ReportSortKey = 'id' | 'team_name' | 'project_name' | 'activity_category' | 'actual_start_date' | 'status' | 'grant_request_amount' | 'created_at'
 type SortOrder = 'ASC' | 'DESC'
 
-const STATUSES: SubmissionStatus[] = ['審査中', '承認', '否決', '対象外']
+const STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認', '否決', '対象外']
 const CATEGORIES: ActivityCategory[] = ['ボランティア活動', 'スポーツ活動', 'その他市民活動']
 const currentYear = new Date().getFullYear()
 const YEARS: string[] = Array.from(

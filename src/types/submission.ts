@@ -1,6 +1,6 @@
 // src/types/submission.ts
 
-export type SubmissionStatus = '審査中' | '承認' | '否決' | '対象外'
+export type SubmissionStatus = '審査前' | '審査中' | '承認' | '否決' | '対象外'
 
 export type ActivityCategory = 'ボランティア活動' | 'スポーツ活動' | 'その他市民活動'
 

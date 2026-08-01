@@ -12,6 +12,7 @@ type Props = {
 }
 
 const STATUS_COLOR: Record<string, string> = {
+  '審査前': 'bg-gray-100 text-gray-700',
   '審査中': 'bg-blue-100 text-blue-700',
   '承認':   'bg-green-100 text-green-700',
   '否決':   'bg-red-100 text-red-700',
