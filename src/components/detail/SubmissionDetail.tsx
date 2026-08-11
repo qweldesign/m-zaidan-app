@@ -1,6 +1,6 @@
 // src/components/detail/SubmissionDetail.tsx
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Submission, SubmissionStatus } from '../../types/submission'
 import Section1Panel from './Section1Panel'
 import Section2Panel from './Section2Panel'
@@ -81,6 +81,10 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
       alert('復元に失敗しました')
     }
   }
+
+  useEffect(() => {
+    setStatus(s.status)
+  }, [s.id])
 
   return (
     <div className="flex flex-col h-full">

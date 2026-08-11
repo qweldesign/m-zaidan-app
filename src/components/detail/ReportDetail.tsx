@@ -1,6 +1,6 @@
 // src/components/details/ReportDetail.tsx
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Report, ReportStatus } from '../../types/report'
 import ReportSection1Panel from './ReportSection1Panel'
 import ReportSection2Panel from './ReportSection2Panel'
@@ -76,6 +76,10 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
       alert('復元に失敗しました')
     }
   }
+
+  useEffect(() => {
+    setStatus(r.status)
+  }, [r.id])
 
   return (
     <div className="flex flex-col h-full">
