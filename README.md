@@ -36,22 +36,30 @@ m-zaidan-app/
     global.d.ts       window.electronAPI の型定義
     types/
       submission.ts   申請データの型定義
+      report.ts       完了報告データの型定義
     hooks/
       useSubmissions.ts   申請一覧取得フック
       useSubmission.ts    個別申請取得フック
+      useReports.ts       完了報告一覧取得フック
+      useReport.ts        個別完了報告取得フック
     components/
-      SubmissionTable.tsx     一覧テーブル
+      SubmissionTable.tsx     申請一覧テーブル
+      ReportTable.tsx         完了報告一覧テーブル
       Pagination.tsx          ページネーション
       ErrorMessage.tsx        エラー表示
       detail/
-        SubmissionDetail.tsx  詳細パネル本体
+        SubmissionDetail.tsx  申請詳細パネル本体
         Section1Panel.tsx     団体情報・会員構成・助成歴
         Section2Panel.tsx     事業情報・参加人数
         Section3Panel.tsx     収支明細
         Section4Panel.tsx     設立背景・活動内容・実績PR
         Section5Panel.tsx     添付ファイル（写真・書類）
+        ReportDetail.tsx      完了報告詳細パネル本体
+        ReportSection1Panel.tsx  団体情報・担当者情報
+        ReportSection2Panel.tsx  事業情報・収支決算
     pages/
-      PrintView.tsx   PDF出力用印刷ビュー
+      PrintView.tsx         申請PDF出力用印刷ビュー
+      PrintReportView.tsx   完了報告PDF出力用印刷ビュー
 ```
 
 ---
@@ -127,12 +135,12 @@ const envPath = isPackaged
 
 ### PDF 出力
 
-`printToPDF` を使用しています。非表示の `BrowserWindow` を作成して `/print/:id` ルートを読み込み、API からデータを取得した後に PDF 化します。
+`printToPDF` を使用しています。非表示の `BrowserWindow` を作成して印刷用ルートを読み込み、API からデータを取得した後に PDF 化します。
 
 ```
-export-pdf IPC
+export-pdf / export-report-pdf IPC
   └─ 非表示ウィンドウを作成
-       └─ /#/print/:id を読み込み
+       └─ /#/print/:id または /#/print-report/:id を読み込み
             └─ 1500ms 待機（API 取得完了を待つ）
                  └─ printToPDF() → ファイル保存
 ```
@@ -142,6 +150,38 @@ export-pdf IPC
 ### HashRouter を使う理由
 
 ビルド後は `file://` プロトコルでHTMLを開くため、`BrowserRouter` のパスベースルーティングが動作しません。`HashRouter` を使うことで `/#/print/:id` のようなハッシュベースのルーティングが `file://` 環境でも動作します。
+
+### ネイティブダイアログ
+
+`confirm()` はElectronでフォーカスを奪ったまま戻らない場合があるため、ステータス変更時の確認ダイアログには `dialog.showMessageBox` を使用しています。
+
+```
+window.electronAPI.showConfirm(message)
+  └─ ipcRenderer.invoke('show-confirm', message)
+       └─ dialog.showMessageBox({ type: 'question', ... })
+```
+
+### ステータス変更時のメール通知
+
+ステータス変更後、対象ステータスの場合はネイティブダイアログで確認を取り、担当者へ通知メールを送信します。
+
+**申請（submissions）**
+
+| ステータス | メール送信 |
+|---|---|
+| 審査前 | ✅ 編集可能になった旨を通知 |
+| 審査中 | ✅ 受付・編集不可になった旨を通知 |
+| 承認 | ✅ 承認を通知 |
+| 否決 | ✅ 否決を通知 |
+| 対象外 | ❌ 送信しない |
+
+**完了報告（reports）**
+
+| ステータス | メール送信 |
+|---|---|
+| 確認前 | ❌ 送信しない |
+| 要修正 | ✅ 修正依頼・編集可能になった旨を通知 |
+| 確認済 | ✅ 確認完了を通知 |
 
 ---
 
@@ -153,21 +193,32 @@ export-pdf IPC
 |---|---|---|
 | GET | /api/submissions | 申請一覧取得 |
 | GET | /api/submissions/:id | 個別申請取得 |
-| PATCH | /api/submissions/:id | 申請内容修正 |
+| PATCH | /api/submissions/:id | 申請内容修正・論理削除 |
+| POST | /api/submissions/:id/notify | ステータス変更メール送信 |
 | GET | /api/submissions/export/csv | CSV エクスポート |
 | GET | /api/files | 添付ファイル取得 |
+| GET | /api/reports | 完了報告一覧取得 |
+| GET | /api/reports/:id | 個別完了報告取得 |
+| PATCH | /api/reports/:id | 完了報告内容修正・論理削除 |
+| POST | /api/reports/:id/notify | ステータス変更メール送信 |
 
 ---
 
 ## データ仕様
 
-### ステータス
+### ステータス（申請）
 
 ```
-審査中 / 承認 / 否決 / 対象外
+審査前（デフォルト）/ 審査中 / 承認 / 否決 / 対象外
 ```
 
-デフォルト値は `審査中`。`対象外` は政治団体・宗教団体など助成対象外の申請に使用。
+`対象外` は政治団体・宗教団体など助成対象外の申請に使用。
+
+### ステータス（完了報告）
+
+```
+確認前（デフォルト）/ 要修正 / 確認済
+```
 
 ### 活動カテゴリ
 
@@ -175,15 +226,19 @@ export-pdf IPC
 ボランティア活動 / スポーツ活動 / その他市民活動
 ```
 
+### 論理削除
+
+`is_deleted = 1` で論理削除。デフォルトでは削除済みは一覧に表示されません。フィルタバーの「削除済みを含む」トグルで表示切り替えができます。復元も詳細パネルから可能です。
+
 ### section1〜5 JSON
 
-申請フォームのセクションごとのデータが JSON で保存されています。空のオブジェクト `{}` の場合はフォールバック表示になります。
+申請フォームのセクションごとのデータが JSON で保存されています。空のオブジェクト `{}` の場合はフォールバック表示になります。再編集によりファイルパスが文字列から配列に変わる場合があります（`Section5Panel` は両方に対応済み）。
 
 ---
 
 ## 既知の制限・今後の課題
 
-- 編集フォーム（PATCH API）は未実装。ステータス変更のみ対応
+- 編集フォーム（フィールド単位の編集）は未実装。ステータス変更・論理削除のみ対応
 - 編集履歴（`submission_logs`）の表示は未実装
 - PDF 出力の待機時間（1500ms）はハードコード。添付ファイルが多い申請では失敗する場合あり
 - Windows のみ動作確認済み（Mac・Linux は未検証）
@@ -194,14 +249,15 @@ export-pdf IPC
 ## 次年度の予定
 
 - Excel マクロから API を直接叩く機能の追加
-- 編集フォームの実装
-- 編集履歴の表示
+- フィールド単位の編集フォームの実装
+- 編集履歴（submission_logs）の表示
 
 ---
 
 ## 開発履歴
 
-- 2026年7月 初期リリース（閲覧・ステータス変更・CSV/PDF 出力）  
+- 2026年7月 初期リリース（申請閲覧・ステータス変更・CSV/PDF 出力）
+- 2026年8月 完了報告機能・論理削除・メール通知・審査前ステータス追加
 
 ---
 
