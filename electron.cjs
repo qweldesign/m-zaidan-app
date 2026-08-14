@@ -216,6 +216,17 @@ ipcMain.handle('notify-report', async (_, id) => {
   return { status: res.status, data }
 })
 
+ipcMain.handle('show-confirm', async (_, message) => {
+  const { response } = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['キャンセル', 'OK'],
+    defaultId: 1,
+    cancelId: 0,
+    message,
+  })
+  return response === 1
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

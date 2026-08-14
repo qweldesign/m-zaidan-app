@@ -38,7 +38,7 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
     const willNotify = NOTIFY_STATUSES.includes(newStatus)
 
     if (willNotify) {
-      const confirmed = confirm(`ステータスを「${newStatus}」に変更し、担当者（${r.contact_email}）にメールを送信します。よろしいですか？`)
+      const confirmed =  await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${r.contact_email}）にメールを送信します。よろしいですか？`)
       if (!confirmed) return
     }
 

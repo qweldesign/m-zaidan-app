@@ -36,6 +36,7 @@ declare global {
         status: number
         data: unknown
       }>
+      showConfirm: (message: string) => Promise<boolean>
     }
   }
 }

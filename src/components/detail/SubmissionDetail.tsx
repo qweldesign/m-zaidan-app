@@ -43,7 +43,7 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
     const willNotify = NOTIFY_STATUSES.includes(newStatus)
 
     if (willNotify) {
-      const confirmed = confirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
+      const confirmed =  await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
       if (!confirmed) return
     }
 
