@@ -28,6 +28,14 @@ declare global {
         canceled: boolean
         filePath?: string
       }>
+      notifySubmission: (id: number) => Promise<{
+        status: number
+        data: unknown
+      }>
+      notifyReport: (id: number) => Promise<{
+        status: number
+        data: unknown
+      }>
     }
   }
 }

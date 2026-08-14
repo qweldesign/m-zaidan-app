@@ -37,16 +37,29 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
   const [status, setStatus] = useState<SubmissionStatus>(s.status)
   const [saving, setSaving] = useState(false)
 
+  const NOTIFY_STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認', '否決']
+
   const handleStatusChange = async (newStatus: SubmissionStatus) => {
+    const willNotify = NOTIFY_STATUSES.includes(newStatus)
+
+    if (willNotify) {
+      const confirmed = confirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
+      if (!confirmed) return
+    }
+
     setStatus(newStatus)
     setSaving(true)
     try {
       const res = await window.electronAPI.patchAPI(`/api/submissions/${s.id}`, { status: newStatus })
       if (res.status !== 200) throw new Error(`API error: ${res.status}`)
       onUpdated()
-    } catch (e) {
+
+      if (willNotify) {
+        await window.electronAPI.notifySubmission(s.id)
+      }
+    } catch {
       alert('ステータスの更新に失敗しました')
-      setStatus(s.status) // 元に戻す
+      setStatus(s.status)
     } finally {
       setSaving(false)
     }

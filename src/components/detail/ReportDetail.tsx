@@ -32,13 +32,26 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
   const [status, setStatus] = useState<ReportStatus>(r.status)
   const [saving, setSaving] = useState(false)
 
+  const NOTIFY_STATUSES: ReportStatus[] = ['要修正', '確認済']
+
   const handleStatusChange = async (newStatus: ReportStatus) => {
+    const willNotify = NOTIFY_STATUSES.includes(newStatus)
+
+    if (willNotify) {
+      const confirmed = confirm(`ステータスを「${newStatus}」に変更し、担当者（${r.contact_email}）にメールを送信します。よろしいですか？`)
+      if (!confirmed) return
+    }
+
     setStatus(newStatus)
     setSaving(true)
     try {
       const res = await window.electronAPI.patchAPI(`/api/reports/${r.id}`, { status: newStatus })
       if (res.status !== 200) throw new Error(`API error: ${res.status}`)
       onUpdated()
+
+      if (willNotify) {
+        await window.electronAPI.notifyReport(r.id)
+      }
     } catch {
       alert('ステータスの更新に失敗しました')
       setStatus(r.status)

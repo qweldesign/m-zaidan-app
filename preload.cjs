@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportCSV: () => ipcRenderer.invoke('export-csv'),
   exportPDF: (id) => ipcRenderer.invoke('export-pdf', id),
   exportReportPDF: (id) => ipcRenderer.invoke('export-report-pdf', id),
+  notifySubmission: (id) => ipcRenderer.invoke('notify-submission', id),
+  notifyReport: (id) => ipcRenderer.invoke('notify-report', id),
 })

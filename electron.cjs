@@ -198,6 +198,24 @@ ipcMain.handle('export-report-pdf', async (_, reportId) => {
   return { canceled: false, filePath }
 })
 
+ipcMain.handle('notify-submission', async (_, id) => {
+  const res = await fetch(`${BASE_URL}/api/submissions/${id}/notify`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  })
+  const data = await res.json()
+  return { status: res.status, data }
+})
+
+ipcMain.handle('notify-report', async (_, id) => {
+  const res = await fetch(`${BASE_URL}/api/reports/${id}/notify`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  })
+  const data = await res.json()
+  return { status: res.status, data }
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
