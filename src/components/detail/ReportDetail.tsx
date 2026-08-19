@@ -37,9 +37,11 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
   const handleStatusChange = async (newStatus: ReportStatus) => {
     const willNotify = NOTIFY_STATUSES.includes(newStatus)
 
+    // ダイアログでキャンセルした場合は通知メールのみ取りやめ、ステータス変更自体は続行する
+    let shouldNotify = willNotify
     if (willNotify) {
-      const confirmed =  await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${r.contact_email}）にメールを送信します。よろしいですか？`)
-      if (!confirmed) return
+      const confirmed = await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${r.contact_email}）にメールを送信します。よろしいですか？`)
+      if (!confirmed) shouldNotify = false
     }
 
     setStatus(newStatus)
@@ -49,7 +51,7 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
       if (res.status !== 200) throw new Error(`API error: ${res.status}`)
       onUpdated()
 
-      if (willNotify) {
+      if (shouldNotify) {
         await window.electronAPI.notifyReport(r.id)
       }
     } catch {

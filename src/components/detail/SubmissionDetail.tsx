@@ -37,14 +37,17 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
   const [status, setStatus] = useState<SubmissionStatus>(s.status)
   const [saving, setSaving] = useState(false)
 
-  const NOTIFY_STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認', '否決']
+  // 否決時は自動メールを送らない
+  const NOTIFY_STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認']
 
   const handleStatusChange = async (newStatus: SubmissionStatus) => {
     const willNotify = NOTIFY_STATUSES.includes(newStatus)
 
+    // ダイアログでキャンセルした場合は通知メールのみ取りやめ、ステータス変更自体は続行する
+    let shouldNotify = willNotify
     if (willNotify) {
-      const confirmed =  await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
-      if (!confirmed) return
+      const confirmed = await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
+      if (!confirmed) shouldNotify = false
     }
 
     setStatus(newStatus)
@@ -54,7 +57,7 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
       if (res.status !== 200) throw new Error(`API error: ${res.status}`)
       onUpdated()
 
-      if (willNotify) {
+      if (shouldNotify) {
         await window.electronAPI.notifySubmission(s.id)
       }
     } catch {
