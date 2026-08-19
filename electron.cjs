@@ -84,7 +84,10 @@ ipcMain.handle('open-file', async (_, filePath) => {
 })
 
 // CSVを保存する（申請一覧・完了報告一覧のいずれか、開いているタブに応じて）
-ipcMain.handle('export-csv', async (_, kind = 'submissions') => {
+// params には一覧画面で現在適用されているフィルター・並び順（status/keyword/
+// activity_category/year/include_deleted/order_by/order）をそのまま渡す。
+// ページング用のlimit/offsetは対象外（絞り込み条件に該当する全件を出力する）
+ipcMain.handle('export-csv', async (_, kind = 'submissions', params = {}) => {
   const apiPath = kind === 'reports' ? '/api/reports/export/csv' : '/api/submissions/export/csv'
   const defaultName = kind === 'reports' ? 'reports' : 'submissions'
 
@@ -97,7 +100,17 @@ ipcMain.handle('export-csv', async (_, kind = 'submissions') => {
 
   if (canceled || !filePath) return { canceled: true }
 
-  const res = await fetch(`${BASE_URL}${apiPath}`, {
+  const query = new URLSearchParams()
+  if (params.status) query.set('status', params.status)
+  if (params.keyword) query.set('keyword', params.keyword)
+  if (params.activity_category) query.set('activity_category', params.activity_category)
+  if (params.year) query.set('year', params.year)
+  if (params.include_deleted) query.set('include_deleted', '1')
+  if (params.order_by) query.set('order_by', params.order_by)
+  if (params.order) query.set('order', params.order)
+  const queryString = query.toString()
+
+  const res = await fetch(`${BASE_URL}${apiPath}${queryString ? `?${queryString}` : ''}`, {
     headers: { Authorization: `Bearer ${TOKEN}` },
   })
 

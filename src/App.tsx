@@ -106,7 +106,26 @@ const [reportIncludeDeleted, setReportIncludeDeleted] = useState(false)
           <button
             className="bg-white text-blue-700 text-sm px-3 py-1 rounded hover:bg-blue-50"
             onClick={async () => {
-              const result = await window.electronAPI.exportCSV(tab)
+              // 現在そのタブの一覧に適用されているフィルター・並び順のままCSV出力する
+              const exportParams = tab === 'reports'
+                ? {
+                    keyword: reportKeyword || undefined,
+                    activity_category: reportCategory || undefined,
+                    year: reportYear || undefined,
+                    include_deleted: reportIncludeDeleted,
+                    order_by: reportSortKey,
+                    order: reportSortOrder,
+                  }
+                : {
+                    status: status || undefined,
+                    keyword: keyword || undefined,
+                    activity_category: category || undefined,
+                    year: year || undefined,
+                    include_deleted: includeDeleted,
+                    order_by: sortKey,
+                    order: sortOrder,
+                  }
+              const result = await window.electronAPI.exportCSV(tab, exportParams)
               if (!result.canceled) alert(`保存しました:\n${result.filePath}`)
             }}
           >
