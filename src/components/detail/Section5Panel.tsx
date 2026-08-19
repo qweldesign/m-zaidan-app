@@ -32,13 +32,13 @@ function PhotoItem({ filePath }: { filePath: string }) {
   }, [filePath])
 
   if (state.status === 'loading') return (
-    <div className="w-24 h-24 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
+    <div className="w-48 h-48 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
       読込中...
     </div>
   )
 
   if (state.status === 'error') return (
-    <div className="w-24 h-24 bg-red-50 rounded flex items-center justify-center text-xs text-red-400 border border-red-200">
+    <div className="w-48 h-48 bg-red-50 rounded flex items-center justify-center text-xs text-red-400 border border-red-200">
       取得失敗
     </div>
   )
@@ -47,7 +47,7 @@ function PhotoItem({ filePath }: { filePath: string }) {
     <img
       src={state.src}
       alt={filePath}
-      className="w-24 h-24 object-cover rounded border cursor-pointer hover:opacity-80"
+      className="w-48 h-48 object-cover rounded border cursor-pointer hover:opacity-80"
       onClick={() => window.electronAPI.openFile(filePath)}
     />
   )
