@@ -187,6 +187,19 @@ handleStatusChange('審査中')
                  └─ POST /api/submissions/:id/notify  body: { pdf: base64文字列 }
 ```
 
+### 編集リンク
+
+申請・完了報告の詳細パネルには「編集リンク」ボタンがあり（削除ボタンのすぐ左）、クリックするとトークン付きの編集用URLをデフォルトブラウザで開きます。フォーム本体とAPIは同一ドメイン配下に配置される構成のため、`.env` の `API_BASE_URL` をそのまま流用してURLを組み立てています。`API_BASE_URL` はAPI側の `.env` の `APP_URL` と同一ホストを指している必要があります。
+
+```
+window.electronAPI.openEditLink('submission' | 'report', editToken)
+  └─ ipcMain.handle('open-edit-link')
+       └─ shell.openExternal(`${API_BASE_URL}/application?token=...`)  // 申請
+            または `${API_BASE_URL}/report?token=...`                  // 完了報告
+```
+
+`edit_token` が存在しない場合はアラートを表示し、ブラウザは開きません。
+
 PDF生成には数秒かかる場合があるため、送信中はヘッダーに「PDFを生成してメール送信中...」と表示されます。API側で `pdf` が不正な場合（base64デコード失敗など）は添付なしでメールのみ送信されます。
 
 **完了報告（reports）**

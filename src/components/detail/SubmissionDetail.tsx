@@ -86,6 +86,14 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
     }
   }
 
+  const handleOpenEditLink = async () => {
+    if (!s.edit_token) {
+      alert('編集トークンがありません')
+      return
+    }
+    await window.electronAPI.openEditLink('submission', s.edit_token)
+  }
+
   const handleDelete = async () => {
     if (!confirm('この申請を削除しますか？')) return
     try {
@@ -137,6 +145,12 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
             onClick={handleExportPDF}
           >
             PDF出力
+          </button>
+          <button
+            className="text-xs text-gray-500 hover:text-gray-700 mr-4 px-2 py-1 border rounded"
+            onClick={handleOpenEditLink}
+          >
+            編集リンク
           </button>
           {s.is_deleted === 1
             ? (

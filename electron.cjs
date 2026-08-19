@@ -236,6 +236,15 @@ ipcMain.handle('notify-report', async (_, id) => {
   return { status: res.status, data }
 })
 
+// 編集用リンク（トークン付き）をデフォルトブラウザで開く
+ipcMain.handle('open-edit-link', async (_, kind, token) => {
+  if (!token) return { opened: false }
+
+  const path = kind === 'report' ? '/report' : '/application'
+  await shell.openExternal(`${BASE_URL}${path}?token=${encodeURIComponent(token)}`)
+  return { opened: true }
+})
+
 ipcMain.handle('show-confirm', async (_, message) => {
   const { response } = await dialog.showMessageBox({
     type: 'question',

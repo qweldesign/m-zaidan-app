@@ -69,6 +69,14 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
     }
   }
 
+  const handleOpenEditLink = async () => {
+    if (!r.edit_token) {
+      alert('編集トークンがありません')
+      return
+    }
+    await window.electronAPI.openEditLink('report', r.edit_token)
+  }
+
   const handleDelete = async () => {
     if (!confirm('この完了報告を削除しますか？')) return
     try {
@@ -120,6 +128,12 @@ export default function ReportDetail({ report: r, onClose, onUpdated }: Props) {
             onClick={handleExportPDF}
           >
             PDF出力
+          </button>
+          <button
+            className="text-xs text-gray-500 hover:text-gray-700 mr-4 px-2 py-1 border rounded"
+            onClick={handleOpenEditLink}
+          >
+            編集リンク
           </button>
           {r.is_deleted === 1
             ? (

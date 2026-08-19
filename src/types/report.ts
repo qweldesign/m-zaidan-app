@@ -58,6 +58,7 @@ export type Report = {
   grant_usage_amount: number
   report_section1_json: ReportSection1Data
   report_section2_json: ReportSection2Data
+  edit_token: string | null
   created_at: string
   updated_at: string
   is_deleted: number

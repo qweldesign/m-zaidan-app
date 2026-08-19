@@ -31,6 +31,7 @@ export type Submission = {
   section3_json: Section3
   section4_json: Section4
   section5_json: Section5
+  edit_token: string | null
   created_at: string
   updated_at: string
   is_deleted: number

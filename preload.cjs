@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   notifySubmission: (id, options) => ipcRenderer.invoke('notify-submission', id, options),
   notifyReport: (id) => ipcRenderer.invoke('notify-report', id),
   showConfirm: (message) => ipcRenderer.invoke('show-confirm', message),
+  openEditLink: (kind, token) => ipcRenderer.invoke('open-edit-link', kind, token),
 })

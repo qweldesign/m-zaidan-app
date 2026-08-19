@@ -37,6 +37,9 @@ declare global {
         data: unknown
       }>
       showConfirm: (message: string) => Promise<boolean>
+      openEditLink: (kind: 'submission' | 'report', token: string | null) => Promise<{
+        opened: boolean
+      }>
     }
   }
 }
