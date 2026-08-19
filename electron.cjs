@@ -83,18 +83,21 @@ ipcMain.handle('open-file', async (_, filePath) => {
   await shell.openPath(tmpPath)
 })
 
-// CSVを保存する
-ipcMain.handle('export-csv', async () => {
+// CSVを保存する（申請一覧・完了報告一覧のいずれか、開いているタブに応じて）
+ipcMain.handle('export-csv', async (_, kind = 'submissions') => {
+  const apiPath = kind === 'reports' ? '/api/reports/export/csv' : '/api/submissions/export/csv'
+  const defaultName = kind === 'reports' ? 'reports' : 'submissions'
+
   // 保存先をダイアログで選択
   const { filePath, canceled } = await dialog.showSaveDialog({
     title: 'CSVを保存',
-    defaultPath: `submissions_${new Date().toISOString().slice(0, 10)}.csv`,
+    defaultPath: `${defaultName}_${new Date().toISOString().slice(0, 10)}.csv`,
     filters: [{ name: 'CSV', extensions: ['csv'] }],
   })
 
   if (canceled || !filePath) return { canceled: true }
 
-  const res = await fetch(`${BASE_URL}/api/submissions/export/csv`, {
+  const res = await fetch(`${BASE_URL}${apiPath}`, {
     headers: { Authorization: `Bearer ${TOKEN}` },
   })
 

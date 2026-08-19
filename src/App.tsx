@@ -106,11 +106,11 @@ const [reportIncludeDeleted, setReportIncludeDeleted] = useState(false)
           <button
             className="bg-white text-blue-700 text-sm px-3 py-1 rounded hover:bg-blue-50"
             onClick={async () => {
-              const result = await window.electronAPI.exportCSV()
+              const result = await window.electronAPI.exportCSV(tab)
               if (!result.canceled) alert(`保存しました:\n${result.filePath}`)
             }}
           >
-            CSV出力
+            {tab === 'reports' ? '完了報告CSV出力' : '申請CSV出力'}
           </button>
         </div>
       </header>

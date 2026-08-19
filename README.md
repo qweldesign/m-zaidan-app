@@ -187,6 +187,8 @@ handleStatusChange('審査中')
                  └─ POST /api/submissions/:id/notify  body: { pdf: base64文字列 }
 ```
 
+PDF生成には数秒かかる場合があるため、送信中はヘッダーに「PDFを生成してメール送信中...」と表示されます。API側で `pdf` が不正な場合（base64デコード失敗など）は添付なしでメールのみ送信されます。
+
 ### 編集リンク
 
 申請・完了報告の詳細パネルには「編集リンク」ボタンがあり（削除ボタンのすぐ左）、クリックするとトークン付きの編集用URLをデフォルトブラウザで開きます。フォーム本体とAPIは同一ドメイン配下に配置される構成のため、`.env` の `API_BASE_URL` をそのまま流用してURLを組み立てています。`API_BASE_URL` はAPI側の `.env` の `APP_URL` と同一ホストを指している必要があります。
@@ -200,7 +202,17 @@ window.electronAPI.openEditLink('submission' | 'report', editToken)
 
 `edit_token` が存在しない場合はアラートを表示し、ブラウザは開きません。
 
-PDF生成には数秒かかる場合があるため、送信中はヘッダーに「PDFを生成してメール送信中...」と表示されます。API側で `pdf` が不正な場合（base64デコード失敗など）は添付なしでメールのみ送信されます。
+### CSV出力
+
+ヘッダーの「CSV出力」ボタンは、開いているタブ（申請一覧／完了報告）に連動して出力先が切り替わります。ボタンのラベルも「申請CSV出力」「完了報告CSV出力」と変化します。
+
+```
+window.electronAPI.exportCSV('submissions' | 'reports')
+  └─ ipcMain.handle('export-csv')
+       └─ GET /api/submissions/export/csv または /api/reports/export/csv
+```
+
+申請一覧CSVには `section1_json` / `section2_json` / `section4_json` の詳細項目（会員構成・助成歴・応募経緯、事業内容・参加人数、設立背景・活動内容など）も列として含まれます。完了報告CSVは既存の基本項目のみです。
 
 **完了報告（reports）**
 
@@ -222,12 +234,13 @@ PDF生成には数秒かかる場合があるため、送信中はヘッダー�
 | GET | /api/submissions/:id | 個別申請取得 |
 | PATCH | /api/submissions/:id | 申請内容修正・論理削除 |
 | POST | /api/submissions/:id/notify | ステータス変更メール送信（body に `{ pdf: base64文字列 }` を渡すとPDFを添付） |
-| GET | /api/submissions/export/csv | CSV エクスポート |
+| GET | /api/submissions/export/csv | 申請一覧CSVエクスポート（section1/2/4_jsonの詳細項目を含む） |
 | GET | /api/files | 添付ファイル取得 |
 | GET | /api/reports | 完了報告一覧取得 |
 | GET | /api/reports/:id | 個別完了報告取得 |
 | PATCH | /api/reports/:id | 完了報告内容修正・論理削除 |
 | POST | /api/reports/:id/notify | ステータス変更メール送信 |
+| GET | /api/reports/export/csv | 完了報告一覧CSVエクスポート |
 
 ---
 

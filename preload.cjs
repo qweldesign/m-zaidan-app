@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   patchAPI: (path, body) => ipcRenderer.invoke('patch-api', path, body),
   fetchFile: (path) => ipcRenderer.invoke('fetch-file', path),
   openFile: (path) => ipcRenderer.invoke('open-file', path),
-  exportCSV: () => ipcRenderer.invoke('export-csv'),
+  exportCSV: (kind) => ipcRenderer.invoke('export-csv', kind),
   exportPDF: (id) => ipcRenderer.invoke('export-pdf', id),
   exportReportPDF: (id) => ipcRenderer.invoke('export-report-pdf', id),
   notifySubmission: (id, options) => ipcRenderer.invoke('notify-submission', id, options),
