@@ -28,7 +28,7 @@ declare global {
         canceled: boolean
         filePath?: string
       }>
-      notifySubmission: (id: number) => Promise<{
+      notifySubmission: (id: number, options?: { attachPdf?: boolean }) => Promise<{
         status: number
         data: unknown
       }>

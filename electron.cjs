@@ -103,17 +103,8 @@ ipcMain.handle('export-csv', async () => {
   return { canceled: false, filePath }
 })
 
-// PDFを保存する
-ipcMain.handle('export-pdf', async (_, submissionId) => {
-  const { filePath, canceled } = await dialog.showSaveDialog({
-    title: 'PDFを保存',
-    defaultPath: `submission_${submissionId}_${new Date().toISOString().slice(0, 10)}.pdf`,
-    filters: [{ name: 'PDF', extensions: ['pdf'] }],
-  })
-
-  if (canceled || !filePath) return { canceled: true }
-
-  // 印刷用ウィンドウを作成
+// 申請PDFをバッファとして生成する（保存ダイアログでの手動出力・通知メール添付の両方から使用）
+async function generateSubmissionPdfBuffer(submissionId) {
   const printWin = new BrowserWindow({
     width: 800,
     height: 1000,
@@ -125,28 +116,44 @@ ipcMain.handle('export-pdf', async (_, submissionId) => {
     },
   })
 
-  if (!app.isPackaged) {
-    printWin.loadURL(`http://localhost:5173/#/print/${submissionId}`)
-  } else {
-    printWin.loadFile(path.join(__dirname, 'dist/index.html'), {
-      hash: `/print/${submissionId}`
+  try {
+    if (!app.isPackaged) {
+      printWin.loadURL(`http://localhost:5173/#/print/${submissionId}`)
+    } else {
+      printWin.loadFile(path.join(__dirname, 'dist/index.html'), {
+        hash: `/print/${submissionId}`
+      })
+    }
+
+    await new Promise(resolve => {
+      printWin.webContents.once('did-finish-load', resolve)
     })
+
+    // 少し待ってからPDF化（データ取得完了を待つ）
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    return await printWin.webContents.printToPDF({
+      printBackground: true,
+      pageSize: 'A4',
+    })
+  } finally {
+    printWin.close()
   }
+}
 
-  await new Promise(resolve => {
-    printWin.webContents.once('did-finish-load', resolve)
+// PDFを保存する
+ipcMain.handle('export-pdf', async (_, submissionId) => {
+  const { filePath, canceled } = await dialog.showSaveDialog({
+    title: 'PDFを保存',
+    defaultPath: `submission_${submissionId}_${new Date().toISOString().slice(0, 10)}.pdf`,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
   })
 
-  // 少し待ってからPDF化（データ取得完了を待つ）
-  await new Promise(resolve => setTimeout(resolve, 1500))
+  if (canceled || !filePath) return { canceled: true }
 
-  const pdfData = await printWin.webContents.printToPDF({
-    printBackground: true,
-    pageSize: 'A4',
-  })
+  const pdfData = await generateSubmissionPdfBuffer(submissionId)
 
   fs.writeFileSync(filePath, pdfData)
-  printWin.close()
 
   return { canceled: false, filePath }
 })
@@ -198,10 +205,23 @@ ipcMain.handle('export-report-pdf', async (_, reportId) => {
   return { canceled: false, filePath }
 })
 
-ipcMain.handle('notify-submission', async (_, id) => {
+ipcMain.handle('notify-submission', async (_, id, options = {}) => {
+  const { attachPdf = false } = options
+
+  // 審査中への通知メールには「PDF出力」と同じPDFを添付する
+  let body
+  if (attachPdf) {
+    const pdfData = await generateSubmissionPdfBuffer(id)
+    body = JSON.stringify({ pdf: pdfData.toString('base64') })
+  }
+
   const res = await fetch(`${BASE_URL}/api/submissions/${id}/notify`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${TOKEN}` },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    ...(body ? { body } : {}),
   })
   const data = await res.json()
   return { status: res.status, data }

@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportCSV: () => ipcRenderer.invoke('export-csv'),
   exportPDF: (id) => ipcRenderer.invoke('export-pdf', id),
   exportReportPDF: (id) => ipcRenderer.invoke('export-report-pdf', id),
-  notifySubmission: (id) => ipcRenderer.invoke('notify-submission', id),
+  notifySubmission: (id, options) => ipcRenderer.invoke('notify-submission', id, options),
   notifyReport: (id) => ipcRenderer.invoke('notify-report', id),
   showConfirm: (message) => ipcRenderer.invoke('show-confirm', message),
 })

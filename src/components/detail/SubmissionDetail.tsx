@@ -36,17 +36,25 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 export default function SubmissionDetail({ submission: s, onClose, onUpdated }: Props) {
   const [status, setStatus] = useState<SubmissionStatus>(s.status)
   const [saving, setSaving] = useState(false)
+  const [attachingPdf, setAttachingPdf] = useState(false)
 
   // 否決時は自動メールを送らない
   const NOTIFY_STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認']
 
+  // 審査中への通知メールには「PDF出力」と同じPDFを添付する
+  const PDF_ATTACH_STATUSES: SubmissionStatus[] = ['審査中']
+
   const handleStatusChange = async (newStatus: SubmissionStatus) => {
-    const willNotify = NOTIFY_STATUSES.includes(newStatus)
+    const willNotify   = NOTIFY_STATUSES.includes(newStatus)
+    const willAttachPdf = PDF_ATTACH_STATUSES.includes(newStatus)
 
     // ダイアログでキャンセルした場合は通知メールのみ取りやめ、ステータス変更自体は続行する
     let shouldNotify = willNotify
     if (willNotify) {
-      const confirmed = await window.electronAPI.showConfirm(`ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`)
+      const confirmMessage = willAttachPdf
+        ? `ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にPDFを添付してメールを送信します。よろしいですか？`
+        : `ステータスを「${newStatus}」に変更し、担当者（${s.contact_email || s.representative_email}）にメールを送信します。よろしいですか？`
+      const confirmed = await window.electronAPI.showConfirm(confirmMessage)
       if (!confirmed) shouldNotify = false
     }
 
@@ -58,13 +66,16 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
       onUpdated()
 
       if (shouldNotify) {
-        await window.electronAPI.notifySubmission(s.id)
+        const attachPdf = willAttachPdf
+        if (attachPdf) setAttachingPdf(true)
+        await window.electronAPI.notifySubmission(s.id, { attachPdf })
       }
     } catch {
       alert('ステータスの更新に失敗しました')
       setStatus(s.status)
     } finally {
       setSaving(false)
+      setAttachingPdf(false)
     }
   }
 
@@ -117,7 +128,7 @@ export default function SubmissionDetail({ submission: s, onClose, onUpdated }: 
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          {saving && <span className="text-xs text-gray-400">保存中...</span>}
+          {saving && <span className="text-xs text-gray-400">{attachingPdf ? 'PDFを生成してメール送信中...' : '保存中...'}</span>}
           <span className="text-sm font-bold">#{s.id}</span>
         </div>
         <div>

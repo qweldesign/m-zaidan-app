@@ -170,10 +170,24 @@ window.electronAPI.showConfirm(message)
 | ステータス | メール送信 |
 |---|---|
 | 審査前 | ✅ 編集可能になった旨を通知 |
-| 審査中 | ✅ 受付・編集不可になった旨を通知 |
+| 審査中 | ✅ 受付・編集不可になった旨を通知（PDF添付。下記参照） |
 | 承認 | ✅ 承認を通知 |
 | 否決 | ❌ 送信しない |
 | 対象外 | ❌ 送信しない |
+
+#### 審査中への通知メールへのPDF添付
+
+「審査中」への変更時は、「PDF出力」ボタンと同じ内容のPDFを生成し、通知メールに添付して送信します（`electron.cjs` の `generateSubmissionPdfBuffer()` を手動出力・自動添付の両方から共用）。
+
+```
+handleStatusChange('審査中')
+  └─ window.electronAPI.notifySubmission(id, { attachPdf: true })
+       └─ ipcMain.handle('notify-submission')
+            └─ generateSubmissionPdfBuffer(id)  // 非表示ウィンドウでPDF生成
+                 └─ POST /api/submissions/:id/notify  body: { pdf: base64文字列 }
+```
+
+PDF生成には数秒かかる場合があるため、送信中はヘッダーに「PDFを生成してメール送信中...」と表示されます。API側で `pdf` が不正な場合（base64デコード失敗など）は添付なしでメールのみ送信されます。
 
 **完了報告（reports）**
 
@@ -194,7 +208,7 @@ window.electronAPI.showConfirm(message)
 | GET | /api/submissions | 申請一覧取得 |
 | GET | /api/submissions/:id | 個別申請取得 |
 | PATCH | /api/submissions/:id | 申請内容修正・論理削除 |
-| POST | /api/submissions/:id/notify | ステータス変更メール送信 |
+| POST | /api/submissions/:id/notify | ステータス変更メール送信（body に `{ pdf: base64文字列 }` を渡すとPDFを添付） |
 | GET | /api/submissions/export/csv | CSV エクスポート |
 | GET | /api/files | 添付ファイル取得 |
 | GET | /api/reports | 完了報告一覧取得 |
