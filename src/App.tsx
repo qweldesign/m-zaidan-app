@@ -110,7 +110,7 @@ const [reportIncludeDeleted, setReportIncludeDeleted] = useState(false)
               if (!result.canceled) alert(`保存しました:\n${result.filePath}`)
             }}
           >
-            {tab === 'reports' ? '完了報告CSV出力' : '申請CSV出力'}
+            {tab === 'reports' ? '完了報告CSV出力' : '要望申請CSV出力'}
           </button>
         </div>
       </header>
@@ -121,13 +121,13 @@ const [reportIncludeDeleted, setReportIncludeDeleted] = useState(false)
           className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'submissions' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           onClick={() => setTab('submissions')}
         >
-          申請一覧
+          要望申請一覧
         </button>
         <button
           className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === 'reports' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           onClick={() => setTab('reports')}
         >
-          完了報告
+          完了報告一覧
         </button>
       </div>
 
