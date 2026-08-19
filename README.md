@@ -206,10 +206,15 @@ window.electronAPI.openEditLink('submission' | 'report', editToken)
 
 ヘッダーの「CSV出力」ボタンは、開いているタブ（申請一覧／完了報告）に連動して出力先が切り替わります。ボタンのラベルも「申請CSV出力」「完了報告CSV出力」と変化します。
 
+その時点でそのタブの一覧に適用されているフィルター・並び順（年度・カテゴリ・ステータス・キーワード検索・削除済み表示・並び順）がそのままCSV出力にも反映されます（ページング用のlimit/offsetは対象外で、絞り込み条件に該当する全件を出力します）。
+
 ```
-window.electronAPI.exportCSV('submissions' | 'reports')
+window.electronAPI.exportCSV('submissions' | 'reports', {
+  status, keyword, activity_category, year, include_deleted, order_by, order
+})
   └─ ipcMain.handle('export-csv')
        └─ GET /api/submissions/export/csv または /api/reports/export/csv
+            （一覧取得APIと同じクエリパラメータをそのまま転送）
 ```
 
 申請一覧CSVには `section1_json` / `section2_json` / `section4_json` の詳細項目（会員構成・助成歴・応募経緯、事業内容・参加人数、設立背景・活動内容など）も列として含まれます。完了報告CSVは既存の基本項目のみです。
@@ -230,17 +235,17 @@ window.electronAPI.exportCSV('submissions' | 'reports')
 
 | メソッド | パス | 用途 |
 |---|---|---|
-| GET | /api/submissions | 申請一覧取得 |
-| GET | /api/submissions/:id | 個別申請取得 |
+| GET | /api/submissions | 申請一覧取得（status/keyword/activity_category/year/include_deleted/order_by/order/limit/offset で絞り込み） |
+| GET | /api/submissions/:id | 個別申請取得（論理削除済みも取得できる。削除済み一覧からの閲覧・復元のため） |
 | PATCH | /api/submissions/:id | 申請内容修正・論理削除 |
 | POST | /api/submissions/:id/notify | ステータス変更メール送信（body に `{ pdf: base64文字列 }` を渡すとPDFを添付） |
-| GET | /api/submissions/export/csv | 申請一覧CSVエクスポート（section1/2/4_jsonの詳細項目を含む） |
+| GET | /api/submissions/export/csv | 申請一覧CSVエクスポート（section1/2/4_jsonの詳細項目を含む。一覧取得と同じ絞り込みパラメータに対応、limit/offsetのみ非対応） |
 | GET | /api/files | 添付ファイル取得 |
-| GET | /api/reports | 完了報告一覧取得 |
-| GET | /api/reports/:id | 個別完了報告取得 |
+| GET | /api/reports | 完了報告一覧取得（keyword/activity_category/year/include_deleted/order_by/order/limit/offset で絞り込み） |
+| GET | /api/reports/:id | 個別完了報告取得（論理削除済みも取得できる。削除済み一覧からの閲覧・復元のため） |
 | PATCH | /api/reports/:id | 完了報告内容修正・論理削除 |
 | POST | /api/reports/:id/notify | ステータス変更メール送信 |
-| GET | /api/reports/export/csv | 完了報告一覧CSVエクスポート |
+| GET | /api/reports/export/csv | 完了報告一覧CSVエクスポート（一覧取得と同じ絞り込みパラメータに対応、limit/offsetのみ非対応） |
 
 ---
 
@@ -269,6 +274,8 @@ window.electronAPI.exportCSV('submissions' | 'reports')
 ### 論理削除
 
 `is_deleted = 1` で論理削除。デフォルトでは削除済みは一覧に表示されません。フィルタバーの「削除済みを含む」トグルで表示切り替えができます。復元も詳細パネルから可能です。
+
+一覧取得・CSVエクスポートは `include_deleted=1` を指定しない限り論理削除済みを除外しますが、個別取得（`GET /api/submissions/:id` ・ `GET /api/reports/:id`）は論理削除済みでも取得できる仕様です。削除済み一覧の行をクリックして詳細パネルを開き、「復元」ボタンを表示・操作できるようにするための意図的な仕様です。
 
 ### section1〜5 JSON
 
