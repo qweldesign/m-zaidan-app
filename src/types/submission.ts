@@ -141,5 +141,6 @@ export type Section5 = {
     financialReport?: string | string[]
     activityPlan?: string | string[]
     financialPlan?: string | string[]
+    other?: string | string[]
   }
 }

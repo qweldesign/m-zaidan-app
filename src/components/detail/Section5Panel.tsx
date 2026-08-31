@@ -13,6 +13,7 @@ const DOC_LABELS: Record<string, string> = {
   financialReport: '決算報告書',
   activityPlan:    '活動計画書',
   financialPlan:   '予算計画書',
+  other:           'その他',
 }
 
 type PhotoState =
