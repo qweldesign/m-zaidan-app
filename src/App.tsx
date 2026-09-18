@@ -23,8 +23,8 @@ const STATUSES: SubmissionStatus[] = ['審査前', '審査中', '承認', '否�
 const CATEGORIES: ActivityCategory[] = ['ボランティア活動', 'スポーツ活動', 'その他市民活動']
 const currentYear = new Date().getFullYear()
 const YEARS: string[] = Array.from(
-  { length: currentYear - 2025 + 1 },
-  (_, i) => String(2025 + i)
+  { length: currentYear - 2026 + 1 },
+  (_, i) => String(2026 + i)
 )
 const LIMIT = 50
 
